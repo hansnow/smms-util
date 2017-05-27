@@ -103,7 +103,7 @@ func main() {
 		panic(err)
 	}
 	// allowed suffixs
-	sfxs := []string{".jpg", ".png"}
+	sfxs := []string{".jpg", ".jpeg", ".png", "gif"}
 	for _, file := range files {
 		if n := file.Name(); hasSuffixs(n, sfxs) {
 			var fullPath string
