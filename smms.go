@@ -3,7 +3,6 @@ package main
 import (
 	"bytes"
 	"encoding/json"
-	"flag"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -95,25 +94,48 @@ func hasSuffixs(s string, sfxs []string) bool {
 	return false
 }
 
+func isPathExist(path string) bool {
+	if _, err := os.Stat(path); err == nil {
+		return true
+	}
+	return false
+}
+
+func isDir(path string) bool {
+	f, err := os.Stat(path)
+	if err != nil {
+		return false
+	}
+	return f.IsDir()
+}
+
 func main() {
 	var path = os.Args[1]
-	flag.Parse()
-	files, err := ioutil.ReadDir(path)
-	if err != nil {
-		panic(err)
+	if !isPathExist(path) {
+		panic("path doesn't exsit")
 	}
 	// allowed suffixs
 	sfxs := []string{".jpg", ".jpeg", ".png", "gif"}
-	for _, file := range files {
-		if n := file.Name(); hasSuffixs(n, sfxs) {
-			var fullPath string
-			if strings.HasSuffix(path, "/") {
-				fullPath = path + file.Name()
-			} else {
-				fullPath = path + "/" + file.Name()
-			}
-			result, _ := uploadFile(fullPath)
-			fmt.Println(result)
+	if isDir(path) {
+		files, err := ioutil.ReadDir(path)
+		if err != nil {
+			panic(err)
 		}
+		for _, file := range files {
+			if n := file.Name(); hasSuffixs(n, sfxs) {
+				var fullPath string
+				if strings.HasSuffix(path, "/") {
+					fullPath = path + file.Name()
+				} else {
+					fullPath = path + "/" + file.Name()
+				}
+				result, _ := uploadFile(fullPath)
+				fmt.Println(result)
+			}
+		}
+	} else {
+		result, _ := uploadFile(path)
+		fmt.Println(result)
 	}
+
 }
